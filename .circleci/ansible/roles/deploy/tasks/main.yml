@@ -5,7 +5,7 @@
     upgrade: yes
     update_cache: yes
     cache_valid_time: 86400
-    
+
 - name: remove unneeded deps
   become: yes
   apt:
@@ -35,5 +35,6 @@
 - name: start app
   become: yes
   shell: |
+    cd .
     pm2 delete all
     pm2 start npm -- start
