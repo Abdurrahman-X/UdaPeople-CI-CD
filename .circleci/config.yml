@@ -314,7 +314,7 @@ jobs:
   smoke-tests:
     docker:
       # Lightweight Docker image 
-      - image: python:3.7-alpine3.11
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - checkout
