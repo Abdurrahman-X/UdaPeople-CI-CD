@@ -363,6 +363,42 @@ jobs:
       - revert-migrations:
           workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
 
+  cloudfront-update:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt install -y tar gzip curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -qq awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Save Old Workflow ID to kvdb.io
+          command: |
+            export OLD-WORKFLOW-ID=$(aws cloudformation \
+                      list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+                      --no-paginate --output text)
+            echo "Old Wokflow ID: $OLD-WORKFLOW-ID"
+            curl https://kvdb.io/${KVDB_BUCKET}/old-workflow-id -d "${OLD-WORKFLOW-ID}"
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name InitialStack \
+              --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
+      # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
+
 workflows:
   my-workflow:
     jobs:
@@ -388,3 +424,5 @@ workflows:
           requires: [run-migrations]
       -  smoke-tests:
           requires: [deploy-frontend, deploy-backend]
+      - cloudfront-update:
+          requires: [smoke-test]
