@@ -177,7 +177,7 @@ jobs:
       - checkout
       # Add ssh keys with fingerprint
       - add_ssh_keys:
-          fingerprints: ["b8:7b:8c:5c:b5:4f:05:cf:c1:b0:ba:a9:af:07:b1:c0"]
+          fingerprints: ["18:4f:29:2e:0f:7c:61:39:1f:9c:0a:ba:3b:f0:86:17"]
       - run:
           name: Install dependencies
           command: |
@@ -284,7 +284,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - 'b8:7b:8c:5c:b5:4f:05:cf:c1:b0:ba:a9:af:07:b1:c0'
+            - '18:4f:29:2e:0f:7c:61:39:1f:9c:0a:ba:3b:f0:86:17'
       - run:
           name: Install dependencies
           command: |
@@ -331,7 +331,7 @@ jobs:
               --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo $API_URL
-             if curl -s --connect-timeout 30 "${API_URL}/api/status" | grep "ok"
+             if curl -s "${API_URL}/api/status" | grep "ok"
             then
                 exit 0
             else

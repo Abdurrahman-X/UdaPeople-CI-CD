@@ -35,6 +35,5 @@
 - name: start app
   become: yes
   shell: |
-    cd .
     pm2 delete all
     pm2 start npm -- start
